@@ -1,4 +1,5 @@
-import express from "express";
+import express, { Request } from "express";
+import morgan from "morgan";
 import { Person } from "./types";
 
 const app = express();
@@ -26,7 +27,10 @@ const persons: Person[] = [
   },
 ];
 
+morgan.token("body", (req: Request) => JSON.stringify(req.body));
+
 app.use(express.json());
+app.use(morgan(":method :url :body - :response-time ms"));
 
 app.get("/", (_req, res) => {
   res.send("<h1>Hello World</h1>");

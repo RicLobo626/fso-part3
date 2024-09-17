@@ -28,7 +28,7 @@ const persons: Person[] = [
 ];
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body));
-
+app.use(express.static("dist"));
 app.use(express.json());
 app.use(morgan(":method :url :body - :response-time ms"));
 

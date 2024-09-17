@@ -1,0 +1,1 @@
+export { getPersons } from "./persons";

@@ -6,7 +6,9 @@
   "scripts": {
     "tsc": "tsc",
     "dev": "ts-node-dev src/index.ts",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "build:ui": "rm -rf dist && cd ../phonebook-frontend && npm run build && cp -r dist ../phonebook-backend",
+    "deploy:full": "npm run build:ui && git add . && git commit -m 'Update UI' && git push"
   },
   "author": "",
   "license": "ISC",

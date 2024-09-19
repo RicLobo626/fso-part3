@@ -1,8 +1,9 @@
 import "dotenv/config";
-import express, { Request } from "express";
+import express, { ErrorRequestHandler, Request } from "express";
 import morgan from "morgan";
 import Person from "./models/Person";
 import { connectToDB } from "./utils/db";
+import "express-async-errors";
 
 const app = express();
 
@@ -78,6 +79,17 @@ app.delete("/api/persons/:id", async (req, res) => {
 
   return res.status(204).end();
 });
+
+const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
+  switch (error.name) {
+    case "CastError":
+      return res.status(400).json({ error: "malformatted id" });
+  }
+
+  return next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 

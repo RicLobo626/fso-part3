@@ -15,13 +15,7 @@ export const PersonForm = ({ onSubmit }: Props) => {
 
       <div>
         <label htmlFor="person-number">Number:</label>
-        <input
-          id="person-number"
-          name="number"
-          type="tel"
-          pattern="^\+?[1-9]\d{1,14}$"
-          required
-        />
+        <input id="person-number" name="number" type="tel" required />
       </div>
 
       <Button type="submit" text="Add" />

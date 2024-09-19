@@ -56,37 +56,19 @@ const App = () => {
   };
 
   const handleCreatePerson = async (body: PersonFormValues) => {
-    try {
-      const createdPerson = await createPerson(body);
-      setPersons(persons.concat(createdPerson));
-      setAlert({ message: `Added ${createdPerson.name}`, type: "success" });
-    } catch (e) {
-      const { message } = handleError(e);
+    const createdPerson = await createPerson(body);
 
-      setAlert({
-        message,
-        type: "error",
-      });
-    }
+    setPersons(persons.concat(createdPerson));
+
+    setAlert({ message: `Added ${createdPerson.name}`, type: "success" });
   };
 
   const handleUpdatePerson = async (id: Person["id"], body: PersonFormValues) => {
-    try {
-      const updatedPerson = await updatePerson(id, body);
+    const updatedPerson = await updatePerson(id, body);
 
-      setPersons(
-        persons.map((p) => (p.id === updatedPerson.id ? updatedPerson : p))
-      );
+    setPersons(persons.map((p) => (p.id === updatedPerson.id ? updatedPerson : p)));
 
-      setAlert({ message: `Updated ${updatedPerson.name}`, type: "success" });
-    } catch (e) {
-      const { message } = handleError(e);
-
-      setAlert({
-        message,
-        type: "error",
-      });
-    }
+    setAlert({ message: `Updated ${updatedPerson.name}`, type: "success" });
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -98,19 +80,28 @@ const App = () => {
 
     const person = persons.find(({ name }) => name === values.name);
 
-    if (!person) {
-      handleCreatePerson(values);
-    } else {
-      const isUpdate = window.confirm(
-        `${values.name} is already added to phonebook, replace the old number with a new one?`
-      );
+    try {
+      const isUpdate =
+        person &&
+        window.confirm(
+          `${values.name} is already added to phonebook, replace the old number with a new one?`
+        );
 
-      if (!isUpdate) return;
+      if (isUpdate) {
+        await handleUpdatePerson(person.id, values);
+      } else {
+        await handleCreatePerson(values);
+      }
 
-      handleUpdatePerson(person.id, values);
+      formEl.reset();
+    } catch (e) {
+      const { message } = handleError(e);
+
+      setAlert({
+        message,
+        type: "error",
+      });
     }
-
-    formEl.reset();
   };
 
   return (

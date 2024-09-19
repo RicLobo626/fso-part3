@@ -1,31 +1,12 @@
+import "dotenv/config";
 import express, { Request } from "express";
 import morgan from "morgan";
-import { Person } from "./types";
+import Person from "./models/Person";
+import { connectToDB } from "./utils/db";
 
 const app = express();
 
-const persons: Person[] = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
+connectToDB();
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body));
 app.use(express.static("dist"));
@@ -36,21 +17,23 @@ app.get("/", (_req, res) => {
   res.send("<h1>Hello World</h1>");
 });
 
-app.get("/info", (_req, res) => {
+app.get("/info", async (_req, res) => {
+  const persons = await Person.find({});
+
   res.send(
     `<p>Phonebook has info for ${persons.length} people</p>
     <p>${new Date()}</p>`
   );
 });
 
-app.get("/api/persons", (_req, res) => {
+app.get("/api/persons", async (_req, res) => {
+  const persons = await Person.find({});
+
   res.json(persons);
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res) => {
   const body = req.body;
-
-  const generateId = () => Math.floor(Math.random() * 9999);
 
   if (!body.name) {
     return res.status(400).json({ error: "name is required" });
@@ -60,26 +43,26 @@ app.post("/api/persons", (req, res) => {
     return res.status(400).json({ error: "number is required" });
   }
 
-  const isUnique = !persons.some((p) => p.name === body.name);
+  const person = await Person.findOne({ name: body.name });
 
-  if (!isUnique) {
+  if (person) {
     return res.status(400).json({ error: "name must be unique" });
   }
 
-  const newPerson: Person = {
-    id: generateId(),
+  const newPerson = new Person({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  persons.push(newPerson);
+  await newPerson.save();
 
   return res.json(newPerson);
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = +req.params.id;
-  const person = persons.find((p) => p.id === id);
+app.get("/api/persons/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const person = await Person.findById(id);
 
   if (person) {
     return res.json(person);
@@ -88,13 +71,10 @@ app.get("/api/persons/:id", (req, res) => {
   return res.status(404).end();
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = +req.params.id;
-  const idx = persons.findIndex((p) => p.id === id);
+app.delete("/api/persons/:id", async (req, res) => {
+  const id = req.params.id;
 
-  if (idx > -1) {
-    persons.splice(idx, 1);
-  }
+  await Person.findByIdAndDelete(id);
 
   return res.status(204).end();
 });

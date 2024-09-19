@@ -76,7 +76,10 @@ app.put("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
   const body = req.body;
 
-  const person = await Person.findByIdAndUpdate(id, body, { new: true });
+  const person = await Person.findByIdAndUpdate(id, body, {
+    new: true,
+    runValidators: true,
+  });
 
   if (person) {
     return res.json(person);

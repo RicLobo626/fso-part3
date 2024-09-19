@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express, { ErrorRequestHandler, Request } from "express";
+import express, { ErrorRequestHandler, Request, RequestHandler } from "express";
 import morgan from "morgan";
 import Person from "./models/Person";
 import { connectToDB } from "./utils/db";
@@ -77,8 +77,12 @@ app.delete("/api/persons/:id", async (req, res) => {
 
   await Person.findByIdAndDelete(id);
 
-  return res.status(204).end();
+  res.status(204).end();
 });
+
+const unknownEndpointHandler: RequestHandler = (_req, res: any) => {
+  res.status(404).json({ error: "unknown endpoint" });
+};
 
 const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
   switch (error.name) {
@@ -89,6 +93,7 @@ const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
   return next(error);
 };
 
+app.use(unknownEndpointHandler);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;

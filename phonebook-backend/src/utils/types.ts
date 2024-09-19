@@ -1,5 +1,7 @@
+import { Types } from "mongoose";
+
 export interface IPerson {
-  id: number;
+  id: Types.ObjectId;
   name: string;
   number: string;
 }

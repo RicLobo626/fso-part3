@@ -72,6 +72,19 @@ app.get("/api/persons/:id", async (req, res) => {
   return res.status(404).end();
 });
 
+app.put("/api/persons/:id", async (req, res) => {
+  const id = req.params.id;
+  const body = req.body;
+
+  const person = await Person.findByIdAndUpdate(id, body, { new: true });
+
+  if (person) {
+    return res.json(person);
+  }
+
+  return res.status(404).end();
+});
+
 app.delete("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
 

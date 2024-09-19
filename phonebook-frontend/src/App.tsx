@@ -8,6 +8,7 @@ import {
   updatePerson,
 } from "src/services/persons";
 import "./index.scss";
+import { handleError } from "./helpers/errorHelper";
 
 const App = () => {
   const [filter, setFilter] = useState("");
@@ -20,7 +21,7 @@ const App = () => {
         const data = await getPersons();
         setPersons(data);
       } catch (e) {
-        console.error("Error fetching persons", e);
+        handleError(e);
       }
     })();
   }, []);
@@ -45,11 +46,12 @@ const App = () => {
       setPersons(persons.filter(({ id }) => id !== person.id));
       setAlert({ message: `Deleted ${person.name}`, type: "success" });
     } catch (e) {
+      const { message } = handleError(e);
+
       setAlert({
-        message: `${person.name} has already been removed from the server`,
+        message,
         type: "error",
       });
-      console.log(`Couldn't delete ${person.name}`, e);
     }
   };
 
@@ -59,8 +61,12 @@ const App = () => {
       setPersons(persons.concat(createdPerson));
       setAlert({ message: `Added ${createdPerson.name}`, type: "success" });
     } catch (e) {
-      console.error("Error creating person", e);
-      setAlert({ message: `Couldn't create ${body.name}`, type: "error" });
+      const { message } = handleError(e);
+
+      setAlert({
+        message,
+        type: "error",
+      });
     }
   };
 
@@ -71,11 +77,13 @@ const App = () => {
       setPersons(
         persons.map((p) => (p.id === updatedPerson.id ? updatedPerson : p))
       );
+
       setAlert({ message: `Updated ${updatedPerson.name}`, type: "success" });
     } catch (e) {
-      console.log(`Error updating person`, e);
+      const { message } = handleError(e);
+
       setAlert({
-        message: `Couldn't update ${body.name}`,
+        message,
         type: "error",
       });
     }

@@ -1,13 +1,12 @@
 import "dotenv/config";
+import "express-async-errors";
 import express, { ErrorRequestHandler, Request, RequestHandler } from "express";
 import morgan from "morgan";
 import Person from "./models/Person";
 import { connectToDB } from "./utils/db";
-import "express-async-errors";
+import { IPerson } from "./utils/types";
 
 const app = express();
-
-connectToDB();
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body));
 app.use(express.static("dist"));
@@ -34,7 +33,7 @@ app.get("/api/persons", async (_req, res) => {
 });
 
 app.post("/api/persons", async (req, res) => {
-  const body = req.body;
+  const body = req.body as IPerson;
 
   if (!body.name) {
     return res.status(400).json({ error: "name is required" });
@@ -74,7 +73,7 @@ app.get("/api/persons/:id", async (req, res) => {
 
 app.put("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
-  const body = req.body;
+  const body = req.body as IPerson;
 
   const person = await Person.findByIdAndUpdate(id, body, {
     new: true,
@@ -96,11 +95,11 @@ app.delete("/api/persons/:id", async (req, res) => {
   res.status(204).end();
 });
 
-const unknownEndpointHandler: RequestHandler = (_req, res: any) => {
+const unknownEndpointHandler: RequestHandler = (_req, res) => {
   res.status(404).json({ error: "unknown endpoint" });
 };
 
-const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
+const errorHandler: ErrorRequestHandler = (error: Error, _req, res, next) => {
   switch (error.name) {
     case "CastError":
       return res.status(400).json({ error: "malformatted id" });
@@ -114,6 +113,14 @@ const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
 app.use(unknownEndpointHandler);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3001;
+void (async () => {
+  try {
+    await connectToDB();
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    const PORT = process.env.PORT || 3001;
+
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch {
+    process.exit(1);
+  }
+})();

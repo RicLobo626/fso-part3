@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 import { IPerson } from "../utils/types";
 
 const personSchema = new Schema<IPerson>({
@@ -7,15 +7,15 @@ const personSchema = new Schema<IPerson>({
     type: String,
     required: true,
     validate: {
-      validator: (v) => /^\d{2,3}-\d{5,}$/.test(v),
+      validator: (v: string) => /^\d{2,3}-\d{5,}$/.test(v),
       message: ({ value }) => `${value} is not a valid phone number!`,
     },
   },
 });
 
 personSchema.set("toJSON", {
-  transform: (_doc, returnObj) => {
-    returnObj.id = returnObj._id.toString();
+  transform: (_doc: Document, returnObj) => {
+    returnObj.id = returnObj._id as Types.ObjectId;
     delete returnObj._id;
     delete returnObj.__v;
   },

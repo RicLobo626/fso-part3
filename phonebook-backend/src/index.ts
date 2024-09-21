@@ -113,14 +113,12 @@ const errorHandler: ErrorRequestHandler = (error: Error, _req, res, next) => {
 app.use(unknownEndpointHandler);
 app.use(errorHandler);
 
-void (async () => {
-  try {
-    await connectToDB();
+const init = async () => {
+  await connectToDB();
 
-    const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 3001;
 
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  } catch {
-    process.exit(1);
-  }
-})();
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+};
+
+void init();

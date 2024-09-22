@@ -1,11 +1,6 @@
-import { FormEvent } from "react";
-import { Button } from "src/components";
+import { Button } from ".";
 
-type Props = {
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-};
-
-export const PersonForm = ({ onSubmit }: Props) => {
+export const PersonForm = ({ onSubmit }) => {
   return (
     <form onSubmit={onSubmit}>
       <div>

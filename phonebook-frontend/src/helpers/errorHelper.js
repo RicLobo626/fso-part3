@@ -1,20 +1,12 @@
 import { isAxiosError } from "axios";
 
-interface ErrorPayload {
-  error: string;
-}
-
-interface ErrorHandlerResults {
-  message: string;
-}
-
-export function handleError(error: unknown): ErrorHandlerResults {
+export function handleError(error) {
   console.error(error);
 
   let message;
 
   if (isAxiosError(error) && error.response) {
-    const errorPayload = error.response.data as ErrorPayload;
+    const errorPayload = error.response.data;
 
     message = errorPayload.error;
   } else {

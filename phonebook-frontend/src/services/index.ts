@@ -1,1 +1,0 @@
-export { getPersons } from "./persons";

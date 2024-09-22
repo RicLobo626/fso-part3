@@ -1,12 +1,6 @@
 import { useEffect } from "react";
-import { Alert } from "src/types";
 
-type Props = {
-  alert: Alert;
-  onClose: () => void;
-};
-
-export const AlertBar = ({ alert, onClose }: Props) => {
+export const AlertBar = ({ alert, onClose }) => {
   useEffect(() => {
     const timeout = setTimeout(onClose, 4000);
 

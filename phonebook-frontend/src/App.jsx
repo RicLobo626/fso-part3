@@ -1,19 +1,18 @@
-import { useState, FormEvent, ChangeEvent, useEffect } from "react";
-import { PersonForm, PersonList, Filter, AlertBar } from "src/components";
-import { Person, PersonFormValues, Alert } from "src/types";
+import { useState, useEffect } from "react";
+import { PersonForm, PersonList, Filter, AlertBar } from "./components";
 import {
   getPersons,
   createPerson,
   deletePerson,
   updatePerson,
-} from "src/services/persons";
+} from "./services/persons";
 import "./index.scss";
 import { handleError } from "./helpers/errorHelper";
 
 const App = () => {
   const [filter, setFilter] = useState("");
-  const [persons, setPersons] = useState<Person[]>([]);
-  const [alert, setAlert] = useState<Alert>(null);
+  const [persons, setPersons] = useState([]);
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -30,13 +29,13 @@ const App = () => {
     return name.toLowerCase().includes(filter.toLowerCase().trim());
   });
 
-  const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeFilter = (e) => {
     setFilter(e.target.value);
   };
 
   const handleCloseAlert = () => setAlert(null);
 
-  const handleDeletePerson = async (person: Person) => {
+  const handleDeletePerson = async (person) => {
     if (!window.confirm(`Delete ${person.name}?`)) {
       return;
     }
@@ -55,7 +54,7 @@ const App = () => {
     }
   };
 
-  const handleCreatePerson = async (body: PersonFormValues) => {
+  const handleCreatePerson = async (body) => {
     const createdPerson = await createPerson(body);
 
     setPersons(persons.concat(createdPerson));
@@ -63,7 +62,7 @@ const App = () => {
     setAlert({ message: `Added ${createdPerson.name}`, type: "success" });
   };
 
-  const handleUpdatePerson = async (id: Person["id"], body: PersonFormValues) => {
+  const handleUpdatePerson = async (id, body) => {
     const updatedPerson = await updatePerson(id, body);
 
     setPersons(persons.map((p) => (p.id === updatedPerson.id ? updatedPerson : p)));
@@ -71,12 +70,12 @@ const App = () => {
     setAlert({ message: `Updated ${updatedPerson.name}`, type: "success" });
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
-    const values = Object.fromEntries(formData.entries()) as PersonFormValues;
+    const values = Object.fromEntries(formData.entries());
 
     const person = persons.find(({ name }) => name === values.name);
 

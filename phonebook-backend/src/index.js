@@ -1,14 +1,13 @@
-import "dotenv/config";
-import "express-async-errors";
-import express, { ErrorRequestHandler, Request, RequestHandler } from "express";
-import morgan from "morgan";
-import Person from "./models/Person";
-import { connectToDB } from "./utils/db";
-import { IPerson } from "./utils/types";
+require("dotenv").config();
+require("express-async-errors");
+const express = require("express");
+const morgan = require("morgan");
+const Person = require("./models/Person.js");
+const { connectToDB } = require("./utils/db.js");
 
 const app = express();
 
-morgan.token("body", (req: Request) => JSON.stringify(req.body));
+morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(express.static("dist"));
 app.use(express.json());
 app.use(morgan(":method :url :body - :response-time ms"));
@@ -33,7 +32,7 @@ app.get("/api/persons", async (_req, res) => {
 });
 
 app.post("/api/persons", async (req, res) => {
-  const body = req.body as IPerson;
+  const body = req.body;
 
   if (!body.name) {
     return res.status(400).json({ error: "name is required" });
@@ -73,7 +72,7 @@ app.get("/api/persons/:id", async (req, res) => {
 
 app.put("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
-  const body = req.body as IPerson;
+  const body = req.body;
 
   const person = await Person.findByIdAndUpdate(id, body, {
     new: true,
@@ -95,11 +94,11 @@ app.delete("/api/persons/:id", async (req, res) => {
   res.status(204).end();
 });
 
-const unknownEndpointHandler: RequestHandler = (_req, res) => {
+const unknownEndpointHandler = (_req, res) => {
   res.status(404).json({ error: "unknown endpoint" });
 };
 
-const errorHandler: ErrorRequestHandler = (error: Error, _req, res, next) => {
+const errorHandler = (error, _req, res, next) => {
   switch (error.name) {
     case "CastError":
       return res.status(400).json({ error: "malformatted id" });
